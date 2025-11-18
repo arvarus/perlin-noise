@@ -1,0 +1,30 @@
+{
+  "name": "@arvarus/perlin-noise",
+  "version": "0.1.0",
+  "description": "Perlin noise implementation in TypeScript",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "keywords": [
+    "perlin",
+    "noise",
+    "procedural",
+    "generation"
+  ],
+  "author": "",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ]
+}
+
