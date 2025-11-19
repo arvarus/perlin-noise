@@ -8,4 +8,5 @@ dist/
 *.swp
 *.swo
 *~
+coverage/
 
