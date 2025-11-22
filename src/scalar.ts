@@ -80,20 +80,12 @@ export function calculateScalarValues(
   grid: Map<string, GradientVector>,
   point: number[],
 ): number[] {
-  // 1. Determine which cell of the grid contains point P
   const cellCoordinates = findCell(point);
-
-  // 2. Generate all vertices of this cell
   const vertices = generateCellVertices(cellCoordinates);
-
-  // 3. For each vertex, calculate the dot product
   const scalarValues: number[] = [];
 
   for (const vertex of vertices) {
-    // Calculate the distance vector between P and the vertex
     const distanceVector = calculateDistanceVector(point, vertex);
-
-    // Get the gradient vector at the vertex
     const gradient = getGradientAt(grid, vertex);
 
     if (gradient === undefined) {
@@ -102,7 +94,6 @@ export function calculateScalarValues(
       );
     }
 
-    // Calculate the dot product between the gradient vector and the distance vector
     const dotProductValue = dotProduct(gradient, distanceVector);
     scalarValues.push(dotProductValue);
   }

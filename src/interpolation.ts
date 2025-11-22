@@ -17,7 +17,6 @@
  * @returns Interpolated value between 0 and 1
  */
 export function smoothstep(t: number): number {
-  // Clamp t between 0 and 1
   const clamped = Math.max(0, Math.min(1, t));
   // Smoothstep formula: t² * (3 - 2t)
   return clamped * clamped * (3 - 2 * clamped);
@@ -67,12 +66,10 @@ function interpolateRecursive(
   fractionalCoords: number[],
   dimension: number = 0,
 ): number {
-  // Base case: if we have a single value, return it
   if (scalarValues.length === 1) {
     return scalarValues[0];
   }
 
-  // If we've reached the last dimension, interpolate between the two remaining values
   if (dimension >= fractionalCoords.length) {
     if (scalarValues.length === 2) {
       return interpolate1D(scalarValues[0], scalarValues[1], fractionalCoords[dimension - 1] || 0);
@@ -85,15 +82,12 @@ function interpolateRecursive(
   const numValues = scalarValues.length;
   const valuesPerHalf = numValues / 2;
 
-  // Divide values into two groups for this dimension
   const lowerValues = scalarValues.slice(0, valuesPerHalf);
   const upperValues = scalarValues.slice(valuesPerHalf);
 
-  // Recursively interpolate for each group
   const lowerInterpolated = interpolateRecursive(lowerValues, fractionalCoords, dimension + 1);
   const upperInterpolated = interpolateRecursive(upperValues, fractionalCoords, dimension + 1);
 
-  // Interpolate between the two groups for this dimension
   return interpolate1D(lowerInterpolated, upperInterpolated, t);
 }
 
@@ -117,10 +111,7 @@ export function interpolateScalarValues(scalarValues: number[], point: number[])
     );
   }
 
-  // Calculate fractional coordinates within the cell
   const fractionalCoords = calculateFractionalCoordinates(point);
-
-  // Recursively interpolate between all values
   return interpolateRecursive(scalarValues, fractionalCoords, 0);
 }
 

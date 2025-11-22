@@ -43,18 +43,15 @@ export class PerlinNoise {
    */
   constructor(options?: PerlinNoiseOptions) {
     this.seed = options?.seed ?? Math.floor(Math.random() * 1000000);
-    // Default to 3D grid with reasonable size to avoid memory issues
     this.gridSize = options?.gridSize ?? [64, 64, 64];
     this.dimension = this.gridSize.length;
 
-    // Validate grid size
     if (this.gridSize.length < 1 || this.gridSize.length > 10) {
       throw new Error(
         `Grid size array length must be between 1 and 10, got ${this.gridSize.length}`,
       );
     }
 
-    // Generate the gradient grid
     this.grid = generateGradientGrid(this.dimension, this.gridSize, this.seed);
   }
 
@@ -66,7 +63,6 @@ export class PerlinNoise {
    * @returns Noise value in the range approximately [-1, 1]
    */
   noise(coordinates: number[]): number {
-    // Validate coordinates array length matches grid dimension
     if (coordinates.length !== this.dimension) {
       throw new Error(
         `Coordinates array length (${coordinates.length}) must match grid dimension (${this.dimension})`,
@@ -75,18 +71,13 @@ export class PerlinNoise {
 
     const point = coordinates;
 
-    // Wrap coordinates to grid bounds using modulo
     const wrappedPoint = point.map((coord, i) => {
       const size = this.gridSize[i];
-      // Handle negative coordinates
       const wrapped = ((coord % size) + size) % size;
       return wrapped;
     });
 
-    // Calculate scalar values at cell vertices
     const scalarValues = calculateScalarValues(this.grid, wrappedPoint);
-
-    // Interpolate scalar values to get final noise value
     const noiseValue = interpolateScalarValues(scalarValues, wrappedPoint);
 
     return noiseValue;

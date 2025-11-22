@@ -30,7 +30,6 @@ function createSeededRNG(seed: number): () => number {
 function normalizeVector(vector: number[]): number[] {
   const magnitude = Math.sqrt(vector.reduce((sum, val) => sum + val * val, 0));
   if (magnitude === 0) {
-    // If magnitude is zero, return a default unit vector
     return vector.map(() => 0);
   }
   return vector.map(val => val / magnitude);
@@ -42,12 +41,10 @@ function normalizeVector(vector: number[]): number[] {
 function generateUnitGradient(dimension: number, rng: () => number): number[] {
   const vector: number[] = [];
 
-  // Generate random components between -1 and 1
   for (let i = 0; i < dimension; i++) {
     vector.push(randomRange(-1, 1, rng));
   }
 
-  // Normalize to unit length
   return normalizeVector(vector);
 }
 
@@ -90,12 +87,10 @@ export function generateGradientGrid(
   const grid = new Map<string, GradientVector>();
   const rng = createSeededRNG(seed);
 
-  // Validate dimension is a positive integer
   if (!Number.isInteger(dimension) || dimension < 1) {
     throw new Error(`Dimension must be a positive integer, got ${dimension}`);
   }
 
-  // Validate that size array length matches dimension
   if (size.length !== dimension) {
     throw new Error(`Size array length (${size.length}) must match dimension (${dimension})`);
   }
@@ -103,10 +98,8 @@ export function generateGradientGrid(
   // Calculate the number of grid points for each dimension (size + 1 for intersections)
   const gridPoints = size.map(s => s + 1);
 
-  // Generate all coordinate combinations
   const coordinates = generateCoordinates(dimension, gridPoints);
 
-  // Generate gradient for each coordinate
   for (const coord of coordinates) {
     const key = coord.join(',');
     let gradient: GradientVector;
