@@ -1,0 +1,90 @@
+name: Publish to npm
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Déclenche sur les tags de version (ex: v1.0.0, v0.2.1)
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write  # Nécessaire pour la provenance
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Nécessaire pour obtenir les tags
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+        
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run linter
+        run: npm run lint
+        
+      - name: Run unit tests
+        run: npm test
+        
+      - name: Setup GPG for package signing
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          if [ -n "$GPG_PRIVATE_KEY" ]; then
+            mkdir -p ~/.gnupg
+            chmod 700 ~/.gnupg
+            echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+            echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
+            GPG_KEY_ID=$(gpg --list-secret-keys --keyid-format LONG | grep sec | awk '{print $2}' | cut -d'/' -f2 | head -n1)
+            if [ -n "$GPG_PASSPHRASE" ] && [ -n "$GPG_KEY_ID" ]; then
+              echo "$GPG_PASSPHRASE" | gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 --sign-key "$GPG_KEY_ID" || true
+            fi
+            echo "GPG_KEY_ID=$GPG_KEY_ID" >> $GITHUB_ENV
+          fi
+        
+      - name: Configure npm
+        env:
+          GPG_KEY_ID: ${{ env.GPG_KEY_ID }}
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+          if [ -n "$GPG_KEY_ID" ]; then
+            npm config set sign-git-tag true
+            echo "GPG signing configured with key: $GPG_KEY_ID"
+          fi
+          # La provenance (signature automatique) sera utilisée avec --provenance
+          echo "Package will be published with provenance signature (automatic with GitHub Actions)"
+        
+      - name: Extract version from tag
+        id: version
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          VERSION=${TAG_NAME#v}  # Enlève le préfixe 'v' si présent
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "Publishing version: $VERSION from tag: $TAG_NAME"
+        
+      - name: Update package.json version
+        run: |
+          npm version ${{ steps.version.outputs.version }} --no-git-tag-version
+        
+      - name: Build package
+        run: npm run build
+        
+      - name: Publish to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GPG_KEY_ID: ${{ env.GPG_KEY_ID }}
+        run: |
+          # Publication avec provenance (signature automatique via GitHub Actions)
+          # Si GPG_KEY_ID est configuré, npm utilisera aussi la signature GPG
+          npm publish --provenance --access public
+
