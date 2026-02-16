@@ -1,6 +1,6 @@
 {
   "name": "@arvarus/perlin-noise",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Perlin noise implementation in TypeScript",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -38,4 +38,3 @@
     "README.md"
   ]
 }
-
