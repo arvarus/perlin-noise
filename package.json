@@ -36,5 +36,9 @@
     "dist",
     "LICENSE",
     "README.md"
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arvarus/perlin-noise.git"
+  }
 }
