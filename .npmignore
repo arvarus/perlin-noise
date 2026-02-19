@@ -6,3 +6,4 @@ jest.config.js
 tsconfig.json
 *.tsbuildinfo
 *.test.**
+**/__tests__/**
