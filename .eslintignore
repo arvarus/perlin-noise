@@ -2,7 +2,8 @@ node_modules/
 dist/
 coverage/
 *.config.js
-jest.config.js
+*.config.ts
+jest.config.ts
 
 
 
