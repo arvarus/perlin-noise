@@ -1,10 +1,14 @@
 import js from '@eslint/js';
+import type { Linter } from 'eslint';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 import globals from 'globals';
 
+const tsRecommendedTypeChecked = tsPlugin.configs['flat/recommended-type-checked'] as Linter.Config[];
+
 export default [
   js.configs.recommended,
+  ...tsRecommendedTypeChecked,
   {
     files: ['src/**/*.ts'],
     languageOptions: {
@@ -18,12 +22,8 @@ export default [
         ...globals.jest,
       },
     },
-    plugins: {
-      '@typescript-eslint': tsPlugin,
-    },
     rules: {
-      ...tsPlugin.configs.recommended.rules,
-      // Classic style rules
+      // Style (project-specific)
       indent: ['error', 2, { SwitchCase: 1 }],
       quotes: ['error', 'single', { avoidEscape: true }],
       semi: ['error', 'always'],
@@ -31,17 +31,16 @@ export default [
       'no-trailing-spaces': 'error',
       'eol-last': ['error', 'always'],
       'no-multiple-empty-lines': ['error', { max: 1, maxEOF: 0 }],
-      // Code quality rules
+      // Code quality
       'no-console': 'warn',
       'no-debugger': 'error',
-      'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       'no-var': 'error',
       'prefer-const': 'error',
       'prefer-arrow-callback': 'error',
       'arrow-spacing': 'error',
       'object-shorthand': 'error',
-      // TypeScript specific
+      // Relaxations
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-explicit-any': 'warn',
