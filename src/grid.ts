@@ -3,7 +3,6 @@
  * Generates a grid with random gradient vectors at each intersection
  */
 
-export type GridDimension = number;
 export type GradientVector = number | number[];
 
 /**
@@ -14,7 +13,7 @@ function randomRange(min: number, max: number, rng: () => number): number {
 }
 
 /**
- * Generates a random number between 0 and 1 using a seeded random number generator
+ * Creates a seeded pseudo-random number generator returning values in [0, 1)
  */
 function createSeededRNG(seed: number): () => number {
   let value = seed;
@@ -26,13 +25,14 @@ function createSeededRNG(seed: number): () => number {
 
 /**
  * Normalizes a vector to unit length
+ * A zero vector is returned unchanged (it has no direction)
  */
-function normalizeVector(vector: number[]): number[] {
+export function normalizeVector(vector: number[]): number[] {
   const magnitude = Math.sqrt(vector.reduce((sum, val) => sum + val * val, 0));
   if (magnitude === 0) {
     return vector.map(() => 0);
   }
-  return vector.map(val => val / magnitude);
+  return vector.map((val) => val / magnitude);
 }
 
 /**
@@ -49,29 +49,6 @@ function generateUnitGradient(dimension: number, rng: () => number): number[] {
 }
 
 /**
- * Recursively generates all coordinate combinations for a given dimension
- */
-function generateCoordinates(
-  dimension: number,
-  gridPoints: number[],
-  currentCoords: number[] = [],
-): number[][] {
-  if (currentCoords.length === dimension) {
-    return [currentCoords];
-  }
-
-  const coordinates: number[][] = [];
-  const currentDim = currentCoords.length;
-  const pointsForThisDim = gridPoints[currentDim];
-  for (let i = 0; i < pointsForThisDim; i++) {
-    const newCoords = [...currentCoords, i];
-    coordinates.push(...generateCoordinates(dimension, gridPoints, newCoords));
-  }
-
-  return coordinates;
-}
-
-/**
  * Generates a grid with gradient vectors at each intersection
  *
  * @param dimension - The dimension of the grid (any positive integer)
@@ -80,13 +57,10 @@ function generateCoordinates(
  * @returns A Map with grid coordinates as keys and gradient vectors as values
  */
 export function generateGradientGrid(
-  dimension: GridDimension,
+  dimension: number,
   size: number[],
   seed: number = Math.floor(Math.random() * 1000000),
 ): Map<string, GradientVector> {
-  const grid = new Map<string, GradientVector>();
-  const rng = createSeededRNG(seed);
-
   if (!Number.isInteger(dimension) || dimension < 1) {
     throw new Error(`Dimension must be a positive integer, got ${dimension}`);
   }
@@ -95,25 +69,33 @@ export function generateGradientGrid(
     throw new Error(`Size array length (${size.length}) must match dimension (${dimension})`);
   }
 
-  // Calculate the number of grid points for each dimension (size + 1 for intersections)
-  const gridPoints = size.map(s => s + 1);
+  const grid = new Map<string, GradientVector>();
+  const rng = createSeededRNG(seed);
 
-  const coordinates = generateCoordinates(dimension, gridPoints);
+  // Number of grid points for each dimension (size + 1 for intersections)
+  const gridPoints = size.map((s) => s + 1);
+  const totalPoints = gridPoints.reduce((product, points) => product * points, 1);
 
-  for (const coord of coordinates) {
-    const key = coord.join(',');
-    let gradient: GradientVector;
+  // Iterate over every grid intersection in lexicographic order
+  // (last dimension varies fastest)
+  const coord = new Array<number>(dimension).fill(0);
+  for (let n = 0; n < totalPoints; n++) {
+    const gradient: GradientVector =
+      dimension === 1
+        ? // 1D case: random scalars between -1 and 1
+          randomRange(-1, 1, rng)
+        : // Multi-dimensional case: unit-length vectors
+          generateUnitGradient(dimension, rng);
 
-    if (dimension === 1) {
-      // 1D case: random scalars between -1 and 1
-      gradient = randomRange(-1, 1, rng);
-    } else {
-      // Multi-dimensional case: unit-length vectors
-      const vector = generateUnitGradient(dimension, rng);
-      gradient = vector;
+    grid.set(coord.join(','), gradient);
+
+    for (let d = dimension - 1; d >= 0; d--) {
+      coord[d]++;
+      if (coord[d] < gridPoints[d]) {
+        break;
+      }
+      coord[d] = 0;
     }
-
-    grid.set(key, gradient);
   }
 
   return grid;
@@ -130,6 +112,5 @@ export function getGradientAt(
   grid: Map<string, GradientVector>,
   coordinates: number[],
 ): GradientVector | undefined {
-  const key = coordinates.join(',');
-  return grid.get(key);
+  return grid.get(coordinates.join(','));
 }

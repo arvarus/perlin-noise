@@ -3,7 +3,6 @@ import {
   calculateFractionalCoordinates,
   interpolate1D,
   interpolateScalarValues,
-  scaleNoiseValue,
 } from '../interpolation';
 
 describe('smoothstep', () => {
@@ -283,26 +282,22 @@ describe('interpolateScalarValues', () => {
   });
 });
 
-describe('scaleNoiseValue', () => {
-  it('should return unchanged value with scale factor of 1.0', () => {
-    expect(scaleNoiseValue(0.5)).toBe(0.5);
-    expect(scaleNoiseValue(-0.3)).toBe(-0.3);
-    expect(scaleNoiseValue(1.0)).toBe(1.0);
+describe('dimension ordering', () => {
+  // Vertex ordering: dimension 0 is the least significant bit of the vertex index.
+  // For values [s00, s10, s01, s11], a point close to vertex (1, 0) must be
+  // close to s10 (index 1), and a point close to (0, 1) close to s01 (index 2).
+  it('should interpolate each dimension with its own fractional coordinate in 2D', () => {
+    const scalarValues = [0, 1, 2, 3];
+
+    expect(interpolateScalarValues(scalarValues, [0.999, 0.001])).toBeCloseTo(1, 2);
+    expect(interpolateScalarValues(scalarValues, [0.001, 0.999])).toBeCloseTo(2, 2);
   });
 
-  it('should scale correctly with custom scale factor', () => {
-    expect(scaleNoiseValue(0.5, 2.0)).toBe(1.0);
-    expect(scaleNoiseValue(0.5, 0.5)).toBe(0.25);
-    expect(scaleNoiseValue(-0.5, 2.0)).toBe(-1.0);
-  });
+  it('should interpolate each dimension with its own fractional coordinate in 3D', () => {
+    const scalarValues = [0, 1, 2, 3, 4, 5, 6, 7];
 
-  it('should handle scale factor of 0', () => {
-    expect(scaleNoiseValue(0.5, 0)).toBe(0);
-    expect(scaleNoiseValue(-0.3, 0)).toBeCloseTo(0, 10);
-  });
-
-  it('should handle negative values', () => {
-    expect(scaleNoiseValue(-0.5, 2.0)).toBe(-1.0);
-    expect(scaleNoiseValue(-1.0, 0.5)).toBe(-0.5);
+    expect(interpolateScalarValues(scalarValues, [0.999, 0.001, 0.001])).toBeCloseTo(1, 2);
+    expect(interpolateScalarValues(scalarValues, [0.001, 0.999, 0.001])).toBeCloseTo(2, 2);
+    expect(interpolateScalarValues(scalarValues, [0.001, 0.001, 0.999])).toBeCloseTo(4, 2);
   });
 });

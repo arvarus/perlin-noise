@@ -1,44 +1,63 @@
 {
   "name": "@arvarus/perlin-noise",
-  "version": "0.1.9",
-  "description": "Perlin noise implementation in TypeScript",
+  "version": "1.0.0",
+  "description": "Perlin noise implementation in TypeScript, supporting 1 to 10 dimensions",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
-    "clean": "rm -rf dist",
-    "lint": "cross-env ESLINT_USE_FLAT_CONFIG=true eslint src",
-    "lint:fix": "cross-env ESLINT_USE_FLAT_CONFIG=true eslint src --fix",
+    "clean": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\"",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "example:basic": "ts-node --project examples/tsconfig.json examples/basic.ts",
+    "example:ascii": "ts-node --project examples/tsconfig.json examples/ascii-terrain.ts",
+    "example:image": "ts-node --project examples/tsconfig.json examples/pgm-image.ts",
     "prepublishOnly": "npm run clean && npm run build"
   },
   "keywords": [
     "perlin",
     "noise",
     "procedural",
-    "generation"
+    "generation",
+    "typescript"
   ],
   "author": "",
   "license": "GPL-3.0",
   "overrides": {
-    "minimatch": ">=10.2.3"
+    "minimatch": ">=10.2.3",
+    "test-exclude": "^7.0.1"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.2",
+    "@eslint/js": "^10.0.1",
     "@types/jest": "^30.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.56.0",
-    "@typescript-eslint/parser": "^8.56.0",
-    "cross-env": "^10.1.0",
-    "eslint": "^9.39.2",
+    "@typescript-eslint/eslint-plugin": "^8.63.0",
+    "@typescript-eslint/parser": "^8.63.0",
+    "eslint": "^10.7.0",
+    "eslint-config-prettier": "^10.1.8",
     "globals": "^17.3.0",
-    "jest": "^30.2.0",
+    "jest": "^30.4.2",
     "jiti": "^2.6.1",
-    "ts-jest": "^29.4.6",
+    "prettier": "^3.9.5",
+    "ts-jest": "^29.4.11",
     "ts-node": "^10.9.2",
-    "typescript": "^5.0.0"
+    "typescript": "^5.9.3"
   },
   "files": [
     "dist",

@@ -4,7 +4,7 @@
  * between gradient vectors and distance vectors
  */
 
-import { GradientVector, getGradientAt } from './grid';
+import { type GradientVector, getGradientAt } from './grid';
 
 /**
  * Calculates the dot product between two vectors
@@ -14,28 +14,24 @@ function dotProduct(gradient: GradientVector, distanceVector: number[]): number 
   if (typeof gradient === 'number') {
     // 1D case: gradient is a scalar, distanceVector has one element
     return gradient * distanceVector[0];
-  } else {
-    // Multi-dimensional case: both are vectors
-    if (gradient.length !== distanceVector.length) {
-      throw new Error(
-        `Gradient vector length (${gradient.length}) must match distance vector length (${distanceVector.length})`,
-      );
-    }
-    return gradient.reduce((sum, val, i) => sum + val * distanceVector[i], 0);
   }
+  // Multi-dimensional case: both are vectors of the same length,
+  // guaranteed by the grid generation
+  return gradient.reduce((sum, val, i) => sum + val * distanceVector[i], 0);
 }
 
 /**
  * Generates all vertices of a hypercube cell in n dimensions
  * Each vertex is represented as an array of coordinates
  * For a cell at [x0, x1, ..., xn], vertices are at [x0 or x0+1, x1 or x1+1, ..., xn or xn+1]
+ * Dimension d is the d-th bit of the vertex index (dimension 0 varies fastest)
  */
 function generateCellVertices(cellCoordinates: number[]): number[][] {
   const dimension = cellCoordinates.length;
   const vertices: number[][] = [];
 
   // Generate all 2^dimension combinations
-  const numVertices = Math.pow(2, dimension);
+  const numVertices = 2 ** dimension;
   for (let i = 0; i < numVertices; i++) {
     const vertex: number[] = [];
     for (let d = 0; d < dimension; d++) {
@@ -53,11 +49,6 @@ function generateCellVertices(cellCoordinates: number[]): number[][] {
  * Calculates the distance vector from point P to a vertex
  */
 function calculateDistanceVector(point: number[], vertex: number[]): number[] {
-  if (point.length !== vertex.length) {
-    throw new Error(
-      `Point dimension (${point.length}) must match vertex dimension (${vertex.length})`,
-    );
-  }
   return point.map((coord, i) => coord - vertex[i]);
 }
 
@@ -66,7 +57,7 @@ function calculateDistanceVector(point: number[], vertex: number[]): number[] {
  * Returns the cell coordinates (floor of each coordinate)
  */
 function findCell(point: number[]): number[] {
-  return point.map(coord => Math.floor(coord));
+  return point.map((coord) => Math.floor(coord));
 }
 
 /**
@@ -94,8 +85,7 @@ export function calculateScalarValues(
       );
     }
 
-    const dotProductValue = dotProduct(gradient, distanceVector);
-    scalarValues.push(dotProductValue);
+    scalarValues.push(dotProduct(gradient, distanceVector));
   }
 
   return scalarValues;
