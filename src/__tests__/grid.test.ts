@@ -1,4 +1,22 @@
-import { generateGradientGrid, getGradientAt, GradientVector } from '../grid';
+import { generateGradientGrid, getGradientAt, normalizeVector, type GradientVector } from '../grid';
+
+describe('normalizeVector', () => {
+  it('should normalize a vector to unit length', () => {
+    const normalized = normalizeVector([3, 4]);
+    expect(normalized[0]).toBeCloseTo(0.6, 10);
+    expect(normalized[1]).toBeCloseTo(0.8, 10);
+  });
+
+  it('should leave a unit vector unchanged', () => {
+    const normalized = normalizeVector([0, 1]);
+    expect(normalized[0]).toBeCloseTo(0, 10);
+    expect(normalized[1]).toBeCloseTo(1, 10);
+  });
+
+  it('should return a zero vector unchanged', () => {
+    expect(normalizeVector([0, 0, 0])).toEqual([0, 0, 0]);
+  });
+});
 
 describe('generateGradientGrid', () => {
   describe('1D grid', () => {
@@ -122,9 +140,7 @@ describe('generateGradientGrid', () => {
 
         // Check unit length
         const magnitude = Math.sqrt(
-          vector[0] * vector[0] +
-          vector[1] * vector[1] +
-          vector[2] * vector[2],
+          vector[0] * vector[0] + vector[1] * vector[1] + vector[2] * vector[2],
         );
         expect(magnitude).toBeCloseTo(1, 10);
       }
@@ -169,9 +185,9 @@ describe('generateGradientGrid', () => {
         // Check unit length
         const magnitude = Math.sqrt(
           vector[0] * vector[0] +
-          vector[1] * vector[1] +
-          vector[2] * vector[2] +
-          vector[3] * vector[3],
+            vector[1] * vector[1] +
+            vector[2] * vector[2] +
+            vector[3] * vector[3],
         );
         expect(magnitude).toBeCloseTo(1, 10);
       }
@@ -216,9 +232,7 @@ describe('generateGradientGrid', () => {
         expect(vector.length).toBe(5);
 
         // Check unit length
-        const magnitude = Math.sqrt(
-          vector.reduce((sum, val) => sum + val * val, 0),
-        );
+        const magnitude = Math.sqrt(vector.reduce((sum, val) => sum + val * val, 0));
         expect(magnitude).toBeCloseTo(1, 10);
       }
     });

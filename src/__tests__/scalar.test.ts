@@ -172,7 +172,7 @@ describe('calculateScalarValues', () => {
 
       expect(scalarValues).toHaveLength(8);
       // All distance vectors should have components of ±0.5
-      expect(scalarValues.every(val => typeof val === 'number')).toBe(true);
+      expect(scalarValues.every((val) => typeof val === 'number')).toBe(true);
     });
   });
 
