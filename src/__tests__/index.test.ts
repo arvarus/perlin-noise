@@ -1,4 +1,4 @@
-import { PerlinNoise, PerlinNoiseOptions } from '../index';
+import { PerlinNoise, type PerlinNoiseOptions } from '../index';
 
 describe('PerlinNoise', () => {
   describe('constructor', () => {
@@ -30,6 +30,49 @@ describe('PerlinNoise', () => {
     it('should throw error for invalid grid size length', () => {
       expect(() => new PerlinNoise({ gridSize: [] })).toThrow();
       expect(() => new PerlinNoise({ gridSize: Array(11).fill(10) })).toThrow();
+    });
+
+    it('should throw error for non positive integer grid sizes', () => {
+      expect(() => new PerlinNoise({ gridSize: [0] })).toThrow();
+      expect(() => new PerlinNoise({ gridSize: [10, -5] })).toThrow();
+      expect(() => new PerlinNoise({ gridSize: [10, 2.5] })).toThrow();
+    });
+
+    it('should not be affected by later mutations of the gridSize option', () => {
+      const gridSize = [10, 10];
+      const noise = new PerlinNoise({ seed: 123, gridSize });
+      const before = noise.noise([2.5, 3.5]);
+      gridSize[0] = 999;
+      expect(noise.noise([2.5, 3.5])).toBeCloseTo(before, 10);
+    });
+  });
+
+  describe('Perlin noise properties', () => {
+    it('should return 0 at every grid vertex', () => {
+      const noise = new PerlinNoise({ seed: 123, gridSize: [8, 8] });
+      for (let x = 0; x < 8; x++) {
+        for (let y = 0; y < 8; y++) {
+          expect(noise.noise([x, y])).toBeCloseTo(0, 10);
+        }
+      }
+    });
+
+    it('should be continuous across cell boundaries', () => {
+      const noise = new PerlinNoise({ seed: 123, gridSize: [8, 8] });
+      const eps = 1e-9;
+      for (let x = 0.5; x < 8; x++) {
+        for (let boundary = 1; boundary < 8; boundary++) {
+          expect(noise.noise([x, boundary - eps])).toBeCloseTo(noise.noise([x, boundary + eps]), 6);
+          expect(noise.noise([boundary - eps, x])).toBeCloseTo(noise.noise([boundary + eps, x]), 6);
+        }
+      }
+    });
+
+    it('should be continuous across the wrapping boundary', () => {
+      const noise = new PerlinNoise({ seed: 123, gridSize: [8] });
+      const eps = 1e-9;
+      expect(noise.noise([8 - eps])).toBeCloseTo(noise.noise([8 + eps]), 6);
+      expect(noise.noise([-eps])).toBeCloseTo(noise.noise([eps]), 6);
     });
   });
 

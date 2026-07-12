@@ -8,9 +8,6 @@ import type { GradientVector } from './grid';
 import { calculateScalarValues } from './scalar';
 import { interpolateScalarValues } from './interpolation';
 
-export { generateGradientGrid, getGradientAt } from './grid';
-export type { GridDimension, GradientVector } from './grid';
-
 /**
  * Configuration options for PerlinNoise
  */
@@ -31,10 +28,10 @@ export interface PerlinNoiseOptions {
  * PerlinNoise class for generating Perlin noise values
  */
 export class PerlinNoise {
-  private grid: Map<string, GradientVector>;
-  private seed: number;
-  private gridSize: number[];
-  private dimension: number;
+  private readonly grid: Map<string, GradientVector>;
+  private readonly seed: number;
+  private readonly gridSize: number[];
+  private readonly dimension: number;
 
   /**
    * Creates a new PerlinNoise instance
@@ -43,13 +40,15 @@ export class PerlinNoise {
    */
   constructor(options?: PerlinNoiseOptions) {
     this.seed = options?.seed ?? Math.floor(Math.random() * 1000000);
-    this.gridSize = options?.gridSize ?? [64, 64, 64];
+    this.gridSize = [...(options?.gridSize ?? [64, 64, 64])];
     this.dimension = this.gridSize.length;
 
-    if (this.gridSize.length < 1 || this.gridSize.length > 10) {
-      throw new Error(
-        `Grid size array length must be between 1 and 10, got ${this.gridSize.length}`,
-      );
+    if (this.dimension < 1 || this.dimension > 10) {
+      throw new Error(`Grid size array length must be between 1 and 10, got ${this.dimension}`);
+    }
+
+    if (this.gridSize.some((size) => !Number.isInteger(size) || size < 1)) {
+      throw new Error(`Grid sizes must be positive integers, got [${this.gridSize.join(', ')}]`);
     }
 
     this.grid = generateGradientGrid(this.dimension, this.gridSize, this.seed);
@@ -58,6 +57,7 @@ export class PerlinNoise {
   /**
    * Generate noise value at given coordinates
    * Supports noise generation for any dimension (1 to 10)
+   * Coordinates wrap around the grid bounds, producing a repeating pattern
    *
    * @param coordinates - Array of coordinates, length must match grid dimension
    * @returns Noise value in the range approximately [-1, 1]
@@ -69,17 +69,12 @@ export class PerlinNoise {
       );
     }
 
-    const point = coordinates;
-
-    const wrappedPoint = point.map((coord, i) => {
+    const wrappedPoint = coordinates.map((coord, i) => {
       const size = this.gridSize[i];
-      const wrapped = ((coord % size) + size) % size;
-      return wrapped;
+      return ((coord % size) + size) % size;
     });
 
     const scalarValues = calculateScalarValues(this.grid, wrappedPoint);
-    const noiseValue = interpolateScalarValues(scalarValues, wrappedPoint);
-
-    return noiseValue;
+    return interpolateScalarValues(scalarValues, wrappedPoint);
   }
 }

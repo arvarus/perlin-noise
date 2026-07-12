@@ -3,10 +3,9 @@
  * Interpolates between the 2^n scalar products calculated at the vertices of the cell
  * containing point P. This ensures that the noise function returns 0 at the grid vertices.
  *
- * The interpolation uses a function whose first derivative (and possibly
- * the second derivative) is zero at the 2^n grid nodes. This has the effect that
- * the gradient of the resulting noise function at each grid node coincides
- * with the precomputed random gradient vector.
+ * The interpolation uses a function whose first derivative is zero at the 2^n grid
+ * nodes. This has the effect that the gradient of the resulting noise function at
+ * each grid node coincides with the precomputed random gradient vector.
  */
 
 /**
@@ -30,10 +29,7 @@ export function smoothstep(t: number): number {
  * @returns Array of fractional coordinates within the cell
  */
 export function calculateFractionalCoordinates(point: number[]): number[] {
-  return point.map(coord => {
-    const cellCoord = Math.floor(coord);
-    return coord - cellCoord;
-  });
+  return point.map((coord) => coord - Math.floor(coord));
 }
 
 /**
@@ -52,49 +48,14 @@ export function interpolate1D(a0: number, a1: number, t: number): number {
 }
 
 /**
- * Recursively interpolates between scalar values for a given dimension
- * This function progressively reduces the number of values by interpolating
- * dimension by dimension
- *
- * @param scalarValues - Array of scalar values (2^n values)
- * @param fractionalCoords - Fractional coordinates of the point within the cell
- * @param dimension - Current dimension to interpolate (starts at 0)
- * @returns Final interpolated value
- */
-function interpolateRecursive(
-  scalarValues: number[],
-  fractionalCoords: number[],
-  dimension: number = 0,
-): number {
-  if (scalarValues.length === 1) {
-    return scalarValues[0];
-  }
-
-  if (dimension >= fractionalCoords.length) {
-    if (scalarValues.length === 2) {
-      return interpolate1D(scalarValues[0], scalarValues[1], fractionalCoords[dimension - 1] || 0);
-    }
-    // If we have more than 2 values, take the average (should not happen normally)
-    return scalarValues.reduce((sum, val) => sum + val, 0) / scalarValues.length;
-  }
-
-  const t = fractionalCoords[dimension];
-  const numValues = scalarValues.length;
-  const valuesPerHalf = numValues / 2;
-
-  const lowerValues = scalarValues.slice(0, valuesPerHalf);
-  const upperValues = scalarValues.slice(valuesPerHalf);
-
-  const lowerInterpolated = interpolateRecursive(lowerValues, fractionalCoords, dimension + 1);
-  const upperInterpolated = interpolateRecursive(upperValues, fractionalCoords, dimension + 1);
-
-  return interpolate1D(lowerInterpolated, upperInterpolated, t);
-}
-
-/**
  * Interpolates between the 2^n scalar products calculated at the vertices of the cell
  * containing point P. This function ensures that the noise returns 0 at the grid
  * vertices thanks to the use of smoothstep.
+ *
+ * The scalar values must follow the vertex ordering produced by
+ * `generateCellVertices`: dimension 0 is the least significant bit of the vertex
+ * index. The values are reduced pairwise, one dimension at a time, so that each
+ * dimension is interpolated with its own fractional coordinate.
  *
  * @param scalarValues - Array of scalar values at the cell vertices (2^n values)
  * @param point - Point P as an array of coordinates
@@ -103,7 +64,7 @@ function interpolateRecursive(
 export function interpolateScalarValues(scalarValues: number[], point: number[]): number {
   // Check that the number of scalar values corresponds to 2^n where n is the dimension
   const dimension = point.length;
-  const expectedCount = Math.pow(2, dimension);
+  const expectedCount = 2 ** dimension;
 
   if (scalarValues.length !== expectedCount) {
     throw new Error(
@@ -112,18 +73,18 @@ export function interpolateScalarValues(scalarValues: number[], point: number[])
   }
 
   const fractionalCoords = calculateFractionalCoordinates(point);
-  return interpolateRecursive(scalarValues, fractionalCoords, 0);
-}
 
-/**
- * Scales an interpolated value to be in the interval [-1.0, 1.0]
- * Noise functions used in computer graphics typically produce
- * values within this interval.
- *
- * @param value - Value to scale
- * @param scaleFactor - Scale factor (default 1.0, no scaling)
- * @returns Scaled value
- */
-export function scaleNoiseValue(value: number, scaleFactor: number = 1.0): number {
-  return value * scaleFactor;
+  // After d reduction passes, consecutive values differ only in dimension d,
+  // so each pass interpolates one dimension with its fractional coordinate.
+  let values = scalarValues;
+  for (let d = 0; d < dimension; d++) {
+    const t = fractionalCoords[d];
+    const reduced: number[] = new Array<number>(values.length / 2);
+    for (let i = 0; i < reduced.length; i++) {
+      reduced[i] = interpolate1D(values[2 * i], values[2 * i + 1], t);
+    }
+    values = reduced;
+  }
+
+  return values[0];
 }
