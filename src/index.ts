@@ -25,6 +25,27 @@ export interface PerlinNoiseOptions {
 }
 
 /**
+ * Configuration options for fractional Brownian motion (fBm)
+ */
+export interface FBMOptions {
+  /**
+   * Number of noise layers to sum (default: 4)
+   * More octaves add finer detail at increasing computational cost
+   */
+  octaves?: number;
+  /**
+   * Frequency multiplier between successive octaves (default: 2)
+   * With integer values the summed noise still wraps seamlessly
+   */
+  lacunarity?: number;
+  /**
+   * Amplitude multiplier between successive octaves (default: 0.5)
+   * Lower values make higher octaves fade faster, giving smoother results
+   */
+  persistence?: number;
+}
+
+/**
  * PerlinNoise class for generating Perlin noise values
  */
 export class PerlinNoise {
@@ -93,5 +114,68 @@ export class PerlinNoise {
     }
 
     return this.noise([x, y]);
+  }
+
+  /**
+   * Generate fractional Brownian motion (fBm) value at given coordinates
+   * Sums several octaves of noise at increasing frequencies and decreasing
+   * amplitudes, producing more natural-looking results than a single octave
+   * (e.g. irregular coastlines on terrain maps)
+   *
+   * The result is normalized by the total amplitude, so it stays in the same
+   * range as `noise`, approximately [-1, 1]
+   *
+   * @param coordinates - Array of coordinates, length must match grid dimension
+   * @param options - fBm options (octaves, lacunarity, persistence)
+   * @returns Normalized fBm value in the range approximately [-1, 1]
+   */
+  fbm(coordinates: number[], options?: FBMOptions): number {
+    const octaves = options?.octaves ?? 4;
+    const lacunarity = options?.lacunarity ?? 2;
+    const persistence = options?.persistence ?? 0.5;
+
+    if (!Number.isInteger(octaves) || octaves < 1) {
+      throw new Error(`Octaves must be a positive integer, got ${octaves}`);
+    }
+
+    if (!(lacunarity > 0)) {
+      throw new Error(`Lacunarity must be a positive number, got ${lacunarity}`);
+    }
+
+    if (!(persistence > 0)) {
+      throw new Error(`Persistence must be a positive number, got ${persistence}`);
+    }
+
+    let frequency = 1;
+    let amplitude = 1;
+    let total = 0;
+    let totalAmplitude = 0;
+
+    for (let octave = 0; octave < octaves; octave++) {
+      total += amplitude * this.noise(coordinates.map((coord) => coord * frequency));
+      totalAmplitude += amplitude;
+      frequency *= lacunarity;
+      amplitude *= persistence;
+    }
+
+    return total / totalAmplitude;
+  }
+
+  /**
+   * Generate 2D fractional Brownian motion (fBm) value at given coordinates
+   * Convenience method over `fbm` for the common 2D case (e.g. terrain maps)
+   * Requires the instance to have been created with a 2D grid
+   *
+   * @param x - X coordinate
+   * @param y - Y coordinate
+   * @param options - fBm options (octaves, lacunarity, persistence)
+   * @returns Normalized fBm value in the range approximately [-1, 1]
+   */
+  fbm2D(x: number, y: number, options?: FBMOptions): number {
+    if (this.dimension !== 2) {
+      throw new Error(`fbm2D requires a 2D grid, but grid dimension is ${this.dimension}`);
+    }
+
+    return this.fbm([x, y], options);
   }
 }

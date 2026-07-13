@@ -1,4 +1,4 @@
-import { PerlinNoise, type PerlinNoiseOptions } from '../index';
+import { PerlinNoise, type FBMOptions, type PerlinNoiseOptions } from '../index';
 
 describe('PerlinNoise', () => {
   describe('constructor', () => {
@@ -195,6 +195,87 @@ describe('PerlinNoise', () => {
       const noise3D = new PerlinNoise({ seed: 123, gridSize: [10, 10, 10] });
       expect(() => noise1D.noise2D(1.0, 1.0)).toThrow('noise2D requires a 2D grid');
       expect(() => noise3D.noise2D(1.0, 1.0)).toThrow('noise2D requires a 2D grid');
+    });
+  });
+
+  describe('fbm', () => {
+    it('should equal single-octave noise when octaves is 1', () => {
+      const noise = new PerlinNoise({ seed: 123, gridSize: [10, 10] });
+      expect(noise.fbm([2.3, 4.7], { octaves: 1 })).toBeCloseTo(noise.noise([2.3, 4.7]), 10);
+    });
+
+    it('should use default options when none are provided', () => {
+      const noise = new PerlinNoise({ seed: 123, gridSize: [10, 10] });
+      const defaults: FBMOptions = { octaves: 4, lacunarity: 2, persistence: 0.5 };
+      expect(noise.fbm([2.3, 4.7])).toBeCloseTo(noise.fbm([2.3, 4.7], defaults), 10);
+    });
+
+    it('should stay within the normalized range', () => {
+      const noise = new PerlinNoise({ seed: 123, gridSize: [10, 10] });
+      for (let x = 0.25; x < 10; x += 0.5) {
+        for (let y = 0.25; y < 10; y += 0.5) {
+          const value = noise.fbm([x, y], { octaves: 6 });
+          expect(value).toBeGreaterThanOrEqual(-1);
+          expect(value).toBeLessThanOrEqual(1);
+        }
+      }
+    });
+
+    it('should produce consistent results for same point and options', () => {
+      const noise = new PerlinNoise({ seed: 123, gridSize: [10, 10] });
+      const options: FBMOptions = { octaves: 5, lacunarity: 2, persistence: 0.6 };
+      expect(noise.fbm([2.3, 4.7], options)).toBeCloseTo(noise.fbm([2.3, 4.7], options), 10);
+    });
+
+    it('should add detail as octaves increase', () => {
+      const noise = new PerlinNoise({ seed: 123, gridSize: [10, 10] });
+      const oneOctave = noise.fbm([2.3, 4.7], { octaves: 1 });
+      const fourOctaves = noise.fbm([2.3, 4.7], { octaves: 4 });
+      expect(oneOctave).not.toBeCloseTo(fourOctaves, 10);
+    });
+
+    it('should work in other dimensions than 2D', () => {
+      const noise1D = new PerlinNoise({ seed: 123, gridSize: [10] });
+      const noise3D = new PerlinNoise({ seed: 123, gridSize: [10, 10, 10] });
+      expect(typeof noise1D.fbm([2.3])).toBe('number');
+      expect(typeof noise3D.fbm([2.3, 4.7, 1.2])).toBe('number');
+    });
+
+    it('should throw error for invalid octaves', () => {
+      const noise = new PerlinNoise({ seed: 123, gridSize: [10, 10] });
+      expect(() => noise.fbm([1.0, 1.0], { octaves: 0 })).toThrow('Octaves');
+      expect(() => noise.fbm([1.0, 1.0], { octaves: -1 })).toThrow('Octaves');
+      expect(() => noise.fbm([1.0, 1.0], { octaves: 2.5 })).toThrow('Octaves');
+    });
+
+    it('should throw error for invalid lacunarity', () => {
+      const noise = new PerlinNoise({ seed: 123, gridSize: [10, 10] });
+      expect(() => noise.fbm([1.0, 1.0], { lacunarity: 0 })).toThrow('Lacunarity');
+      expect(() => noise.fbm([1.0, 1.0], { lacunarity: -2 })).toThrow('Lacunarity');
+      expect(() => noise.fbm([1.0, 1.0], { lacunarity: NaN })).toThrow('Lacunarity');
+    });
+
+    it('should throw error for invalid persistence', () => {
+      const noise = new PerlinNoise({ seed: 123, gridSize: [10, 10] });
+      expect(() => noise.fbm([1.0, 1.0], { persistence: 0 })).toThrow('Persistence');
+      expect(() => noise.fbm([1.0, 1.0], { persistence: -0.5 })).toThrow('Persistence');
+      expect(() => noise.fbm([1.0, 1.0], { persistence: NaN })).toThrow('Persistence');
+    });
+  });
+
+  describe('fbm2D', () => {
+    it('should return the same value as fbm([x, y])', () => {
+      const noise = new PerlinNoise({ seed: 123, gridSize: [10, 10] });
+      expect(noise.fbm2D(1.5, 2.3)).toBeCloseTo(noise.fbm([1.5, 2.3]), 10);
+      const options: FBMOptions = { octaves: 6, lacunarity: 3, persistence: 0.4 };
+      expect(noise.fbm2D(1.5, 2.3, options)).toBeCloseTo(noise.fbm([1.5, 2.3], options), 10);
+    });
+
+    it('should throw error when grid is not 2D', () => {
+      const noise1D = new PerlinNoise({ seed: 123, gridSize: [10] });
+      const noise3D = new PerlinNoise({ seed: 123, gridSize: [10, 10, 10] });
+      expect(() => noise1D.fbm2D(1.0, 1.0)).toThrow('fbm2D requires a 2D grid');
+      expect(() => noise3D.fbm2D(1.0, 1.0)).toThrow('fbm2D requires a 2D grid');
     });
   });
 
