@@ -48,6 +48,21 @@ for (let x = 0; x < 10; x += 0.1) {
 }
 ```
 
+### Natural-Looking Terrain with fBm
+
+For more natural results (irregular coastlines, fine detail), sum several octaves
+of noise with fractional Brownian motion:
+
+```typescript
+const noise = new PerlinNoise({ seed: 42, gridSize: [8, 16] });
+
+// 4 octaves by default; each octave doubles the frequency and halves the amplitude
+const elevation = noise.fbm2D(x, y, { octaves: 4, lacunarity: 2, persistence: 0.5 });
+
+// Map the value to a terrain type
+const terrain = elevation < -0.1 ? 'sea' : elevation < 0.3 ? 'land' : 'mountain';
+```
+
 ### Using a Fixed Seed for Reproducible Results
 
 ```typescript
@@ -138,6 +153,70 @@ const wrapped = noise.noise([100.0, 200.0]); // Wraps to [36, 8] for 64x64 grid
 
 - `Error` - If the coordinates array length doesn't match the grid dimension
 
+##### `noise2D(x: number, y: number): number`
+
+Convenience method over `noise` for the common 2D case (e.g. terrain maps). Requires the instance to have been created with a 2D grid.
+
+**Parameters:**
+
+- `x: number` - X coordinate
+- `y: number` - Y coordinate
+
+**Returns:**
+
+- `number` - Noise value approximately in the range `[-1, 1]`, identical to `noise([x, y])`
+
+**Throws:**
+
+- `Error` - If the grid dimension is not 2
+
+##### `fbm(coordinates: number[], options?: FBMOptions): number`
+
+Generates a fractional Brownian motion (fBm) value by summing several octaves of noise at increasing frequencies and decreasing amplitudes. Produces more natural-looking results than a single octave (e.g. irregular coastlines on terrain maps).
+
+**Parameters:**
+
+- `coordinates: number[]` - Array of coordinates. The length must match the grid dimension specified in the constructor.
+- `options` (optional): fBm configuration
+  - `octaves?: number` - Number of noise layers to sum. Default: `4`. Must be a positive integer.
+  - `lacunarity?: number` - Frequency multiplier between successive octaves. Default: `2`. Must be positive. With integer values the summed noise still wraps seamlessly.
+  - `persistence?: number` - Amplitude multiplier between successive octaves. Default: `0.5`. Must be positive.
+
+**Returns:**
+
+- `number` - fBm value normalized by the total amplitude, approximately in the range `[-1, 1]`
+
+**Example:**
+
+```typescript
+const noise = new PerlinNoise({ gridSize: [64, 64] });
+
+const value = noise.fbm([10.5, 20.3], { octaves: 6, persistence: 0.4 });
+```
+
+**Throws:**
+
+- `Error` - If `octaves` is not a positive integer, or `lacunarity` or `persistence` is not a positive number
+- `Error` - If the coordinates array length doesn't match the grid dimension
+
+##### `fbm2D(x: number, y: number, options?: FBMOptions): number`
+
+Convenience method over `fbm` for the common 2D case. Requires the instance to have been created with a 2D grid.
+
+**Parameters:**
+
+- `x: number` - X coordinate
+- `y: number` - Y coordinate
+- `options` (optional): Same fBm configuration as `fbm`
+
+**Returns:**
+
+- `number` - fBm value approximately in the range `[-1, 1]`, identical to `fbm([x, y], options)`
+
+**Throws:**
+
+- `Error` - If the grid dimension is not 2, or if the options are invalid
+
 ### `PerlinNoiseOptions`
 
 Configuration interface for the `PerlinNoise` constructor.
@@ -154,10 +233,28 @@ interface PerlinNoiseOptions {
 - `seed?: number` - Seed for random number generation. Same seed produces the same noise pattern.
 - `gridSize?: number[]` - Grid size for each dimension. Default: `[64, 64, 64]`. Must be an array of 1 to 10 positive integers. The grid wraps around, allowing for repeating patterns.
 
+### `FBMOptions`
+
+Configuration interface for the `fbm` and `fbm2D` methods.
+
+```typescript
+interface FBMOptions {
+  octaves?: number;
+  lacunarity?: number;
+  persistence?: number;
+}
+```
+
+**Properties:**
+
+- `octaves?: number` - Number of noise layers to sum. Default: `4`. More octaves add finer detail at increasing computational cost.
+- `lacunarity?: number` - Frequency multiplier between successive octaves. Default: `2`.
+- `persistence?: number` - Amplitude multiplier between successive octaves. Default: `0.5`. Lower values make higher octaves fade faster, giving smoother results.
+
 ## Migrating from 0.x
 
 - **Noise values changed**: version 0.x interpolated dimensions in reversed order, which made the noise discontinuous across cell boundaries. This is fixed in 1.0, so values generated for a given seed differ from 0.x.
-- **Trimmed exports**: the internal helpers `generateGradientGrid`, `getGradientAt`, `GridDimension` and `GradientVector` are no longer exported from the package root. The public API is `PerlinNoise` and `PerlinNoiseOptions`.
+- **Trimmed exports**: the internal helpers `generateGradientGrid`, `getGradientAt`, `GridDimension` and `GradientVector` are no longer exported from the package root. The public API is `PerlinNoise`, `PerlinNoiseOptions` and `FBMOptions`.
 
 ## Development
 
