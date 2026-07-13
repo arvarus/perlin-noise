@@ -77,4 +77,21 @@ export class PerlinNoise {
     const scalarValues = calculateScalarValues(this.grid, wrappedPoint);
     return interpolateScalarValues(scalarValues, wrappedPoint);
   }
+
+  /**
+   * Generate 2D noise value at given coordinates
+   * Convenience method over `noise` for the common 2D case (e.g. terrain maps)
+   * Requires the instance to have been created with a 2D grid
+   *
+   * @param x - X coordinate
+   * @param y - Y coordinate
+   * @returns Noise value in the range approximately [-1, 1]
+   */
+  noise2D(x: number, y: number): number {
+    if (this.dimension !== 2) {
+      throw new Error(`noise2D requires a 2D grid, but grid dimension is ${this.dimension}`);
+    }
+
+    return this.noise([x, y]);
+  }
 }

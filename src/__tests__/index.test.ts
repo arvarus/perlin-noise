@@ -170,6 +170,34 @@ describe('PerlinNoise', () => {
     });
   });
 
+  describe('noise2D', () => {
+    it('should return the same value as noise([x, y])', () => {
+      const noise = new PerlinNoise({ seed: 123, gridSize: [10, 10] });
+      expect(noise.noise2D(1.5, 2.3)).toBeCloseTo(noise.noise([1.5, 2.3]), 10);
+      expect(noise.noise2D(-1.5, 12.3)).toBeCloseTo(noise.noise([-1.5, 12.3]), 10);
+    });
+
+    it('should generate noise value in the expected range', () => {
+      const noise = new PerlinNoise({ seed: 123, gridSize: [10, 10] });
+      const value = noise.noise2D(3.7, 4.2);
+      expect(typeof value).toBe('number');
+      expect(value).toBeGreaterThanOrEqual(-2);
+      expect(value).toBeLessThanOrEqual(2);
+    });
+
+    it('should produce consistent results for same point', () => {
+      const noise = new PerlinNoise({ seed: 123, gridSize: [10, 10] });
+      expect(noise.noise2D(2.3, 4.7)).toBeCloseTo(noise.noise2D(2.3, 4.7), 10);
+    });
+
+    it('should throw error when grid is not 2D', () => {
+      const noise1D = new PerlinNoise({ seed: 123, gridSize: [10] });
+      const noise3D = new PerlinNoise({ seed: 123, gridSize: [10, 10, 10] });
+      expect(() => noise1D.noise2D(1.0, 1.0)).toThrow('noise2D requires a 2D grid');
+      expect(() => noise3D.noise2D(1.0, 1.0)).toThrow('noise2D requires a 2D grid');
+    });
+  });
+
   describe('3D noise', () => {
     it('should generate noise value for 3D coordinates', () => {
       const noise = new PerlinNoise({ seed: 123, gridSize: [10, 10, 10] });
