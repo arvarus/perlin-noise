@@ -1,6 +1,6 @@
 {
   "name": "@arvarus/perlin-noise",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Perlin noise implementation in TypeScript, supporting 1 to 10 dimensions",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
