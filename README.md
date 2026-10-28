@@ -270,3 +270,9 @@ npm run build         # Compile to dist/
 ## License
 
 GPL-3.0
+
+## Contributing
+
+Commits and pull request titles follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) (`feat: …`, `fix: …`, `docs: …`, `ci: …`), checked by commitlint in CI. Pull requests are squash-merged, so the title becomes the commit message.
+
+Releases are automated by [release-please](https://github.com/googleapis/release-please): a release pull request is kept open on `master` (version bump and `CHANGELOG.md` from the commits); merging it creates the tag and the GitHub release, then publishes the package to npm.

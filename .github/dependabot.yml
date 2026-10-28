@@ -1,0 +1,16 @@
+# Keeps the GitHub Actions used by .github/workflows/ up to date (new majors included, e.g. when
+# a runtime such as Node 20 gets deprecated on the runners).
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    # One pull request for all the actions rather than one per action.
+    groups:
+      github-actions:
+        patterns: ['*']
+    # PR titles must pass commitlint (.github/workflows/pr-title.yml): "ci(deps): bump …".
+    commit-message:
+      prefix: ci
+      include: scope
