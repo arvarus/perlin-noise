@@ -1,5 +1,5 @@
 /**
- * Basic usage of @arvarus/perlin-noise
+ * Basic usage of @arvarus/trouz
  * Run with: npm run example:basic
  */
 

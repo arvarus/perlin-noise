@@ -1,7 +1,7 @@
 {
-  "name": "@arvarus/perlin-noise",
+  "name": "@arvarus/trouz",
   "version": "1.0.1",
-  "description": "Perlin noise implementation in TypeScript, supporting 1 to 10 dimensions",
+  "description": "Procedural noise toolkit in TypeScript: Perlin noise in 1 to 10 dimensions",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
@@ -32,7 +32,9 @@
     "prepublishOnly": "npm run clean && npm run build"
   },
   "keywords": [
+    "trouz",
     "perlin",
+    "perlin-noise",
     "noise",
     "procedural",
     "generation",
@@ -68,6 +70,6 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/arvarus/perlin-noise.git"
+    "url": "git+https://github.com/arvarus/trouz.git"
   }
 }

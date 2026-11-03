@@ -1,5 +1,5 @@
 /**
- * @arvarus/perlin-noise
+ * @arvarus/trouz
  * Perlin noise implementation in TypeScript
  */
 

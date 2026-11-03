@@ -1,8 +1,10 @@
-# @arvarus/perlin-noise
+# @arvarus/trouz
 
-[![CI](https://github.com/arvarus/perlin-noise/actions/workflows/ci.yml/badge.svg)](https://github.com/arvarus/perlin-noise/actions/workflows/ci.yml)
+[![CI](https://github.com/arvarus/trouz/actions/workflows/ci.yml/badge.svg)](https://github.com/arvarus/trouz/actions/workflows/ci.yml)
 
-Perlin noise implementation in TypeScript, supporting 1 to 10 dimensions.
+**trouz** (Breton for "noise") is a procedural noise toolkit in TypeScript. It currently provides Perlin noise, supporting 1 to 10 dimensions.
+
+> Formerly published as `@arvarus/perlin-noise`.
 
 - **N-dimensional**: generate noise in 1D, 2D, 3D... up to 10D
 - **Deterministic**: same seed, same noise pattern
@@ -12,7 +14,7 @@ Perlin noise implementation in TypeScript, supporting 1 to 10 dimensions.
 ## Installation
 
 ```bash
-npm install @arvarus/perlin-noise
+npm install @arvarus/trouz
 ```
 
 ## Usage
@@ -20,7 +22,7 @@ npm install @arvarus/perlin-noise
 ### Basic Example
 
 ```typescript
-import { PerlinNoise } from '@arvarus/perlin-noise';
+import { PerlinNoise } from '@arvarus/trouz';
 
 // Create a Perlin noise instance
 const noise = new PerlinNoise({
@@ -250,6 +252,20 @@ interface FBMOptions {
 - `octaves?: number` - Number of noise layers to sum. Default: `4`. More octaves add finer detail at increasing computational cost.
 - `lacunarity?: number` - Frequency multiplier between successive octaves. Default: `2`.
 - `persistence?: number` - Amplitude multiplier between successive octaves. Default: `0.5`. Lower values make higher octaves fade faster, giving smoother results.
+
+## Migrating from `@arvarus/perlin-noise`
+
+The package was renamed to `@arvarus/trouz`. The API is unchanged: replace the dependency and the import path.
+
+```bash
+npm uninstall @arvarus/perlin-noise
+npm install @arvarus/trouz
+```
+
+```diff
+-import { PerlinNoise } from '@arvarus/perlin-noise';
++import { PerlinNoise } from '@arvarus/trouz';
+```
 
 ## Migrating from 0.x
 
