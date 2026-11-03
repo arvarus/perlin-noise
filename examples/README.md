@@ -1,6 +1,6 @@
 # Examples
 
-Runnable examples for `@arvarus/perlin-noise`. They import the library directly
+Runnable examples for `@arvarus/trouz`. They import the library directly
 from `../src`, so no build step is required — only `npm install` at the
 repository root.
 
@@ -13,5 +13,5 @@ repository root.
 In your own project, replace the `../src` import with the package name:
 
 ```typescript
-import { PerlinNoise } from '@arvarus/perlin-noise';
+import { PerlinNoise } from '@arvarus/trouz';
 ```
