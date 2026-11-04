@@ -285,7 +285,7 @@ npm run build         # Compile to dist/
 
 ## License
 
-GPL-3.0
+MIT
 
 ## Contributing
 
