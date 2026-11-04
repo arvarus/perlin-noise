@@ -4,7 +4,7 @@
  * between gradient vectors and distance vectors
  */
 
-import { type GradientVector, getGradientAt } from './grid';
+import { type GradientVector, getGradientAt } from './grid.js';
 
 /**
  * Calculates the dot product between two vectors

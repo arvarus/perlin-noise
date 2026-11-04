@@ -1,7 +1,9 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "rootDir": "."
+    "rootDir": ".",
+    // Lets the examples, which import the package by name, be linted without a prior build.
+    "paths": { "@arvarus/trouz": ["./src/index.ts"] }
   },
   "include": ["src/**/*", "examples/**/*"],
   "exclude": ["node_modules", "dist"]

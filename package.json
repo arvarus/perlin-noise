@@ -2,12 +2,19 @@
   "name": "@arvarus/trouz",
   "version": "2.0.0",
   "description": "Procedural noise toolkit in TypeScript: Perlin noise in 1 to 10 dimensions",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/cjs/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/cjs/index.d.ts",
+        "default": "./dist/cjs/index.js"
+      }
     },
     "./package.json": "./package.json"
   },
@@ -16,7 +23,8 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "npm run clean && tsc -p tsconfig.json && tsc -p tsconfig.esm.json && node scripts/mark-dist-formats.mjs",
+    "test:package": "node scripts/check-package.mjs",
     "watch": "tsc --watch",
     "clean": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\"",
     "lint": "eslint .",
@@ -26,9 +34,9 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "example:basic": "ts-node --project examples/tsconfig.json examples/basic.ts",
-    "example:ascii": "ts-node --project examples/tsconfig.json examples/ascii-terrain.ts",
-    "example:image": "ts-node --project examples/tsconfig.json examples/pgm-image.ts",
+    "example:basic": "npm run build && ts-node --project examples/tsconfig.json examples/basic.ts",
+    "example:ascii": "npm run build && ts-node --project examples/tsconfig.json examples/ascii-terrain.ts",
+    "example:image": "npm run build && ts-node --project examples/tsconfig.json examples/pgm-image.ts",
     "prepublishOnly": "npm run clean && npm run build"
   },
   "keywords": [

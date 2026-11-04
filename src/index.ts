@@ -3,10 +3,10 @@
  * Perlin noise implementation in TypeScript
  */
 
-import { generateGradientGrid } from './grid';
-import type { GradientVector } from './grid';
-import { calculateScalarValues } from './scalar';
-import { interpolateScalarValues } from './interpolation';
+import { generateGradientGrid } from './grid.js';
+import type { GradientVector } from './grid.js';
+import { calculateScalarValues } from './scalar.js';
+import { interpolateScalarValues } from './interpolation.js';
 
 /**
  * Configuration options for PerlinNoise
