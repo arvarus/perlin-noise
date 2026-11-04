@@ -1,7 +1,7 @@
 name: Docs
 
 # Builds the documentation site (VitePress + TypeDoc) and publishes it to GitHub Pages
-# (https://arvarus.github.io/trouz/). Requires Settings > Pages > Source: "GitHub Actions".
+# (https://trouz.arvarus.com/). Requires Settings > Pages > Source: "GitHub Actions".
 on:
   push:
     branches: [master]
