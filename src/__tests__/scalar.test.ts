@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { generateGradientGrid } from '../grid';
 import { calculateScalarValues } from '../scalar';
 
