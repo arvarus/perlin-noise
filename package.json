@@ -41,7 +41,7 @@
     "typescript"
   ],
   "author": "",
-  "license": "GPL-3.0",
+  "license": "MIT",
   "overrides": {
     "minimatch": ">=10.2.3",
     "test-exclude": "^7.0.1"
