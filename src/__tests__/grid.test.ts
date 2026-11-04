@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { generateGradientGrid, getGradientAt, normalizeVector, type GradientVector } from '../grid';
 
 describe('normalizeVector', () => {

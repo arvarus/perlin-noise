@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { PerlinNoise, type FBMOptions, type PerlinNoiseOptions } from '../index';
 
 describe('PerlinNoise', () => {
