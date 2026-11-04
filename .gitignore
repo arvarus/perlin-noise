@@ -11,3 +11,8 @@ dist/
 coverage/
 
 examples/noise.pgm
+
+# Documentation site
+docs/reference/
+docs/.vitepress/cache/
+docs/.vitepress/dist/

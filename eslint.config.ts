@@ -11,7 +11,7 @@ const tsRecommendedTypeChecked = tsPlugin.configs[
 
 export default [
   {
-    ignores: ['dist/', 'coverage/', 'node_modules/', 'scripts/', '*.config.ts'],
+    ignores: ['dist/', 'coverage/', 'docs/', 'node_modules/', 'scripts/', '*.config.ts'],
   },
   js.configs.recommended,
   ...tsRecommendedTypeChecked,
