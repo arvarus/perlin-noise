@@ -3,7 +3,7 @@
  * Run with: npm run example:ascii
  */
 
-import { PerlinNoise } from '../src';
+import { PerlinNoise } from '@arvarus/trouz';
 
 const WIDTH = 78;
 const HEIGHT = 36;

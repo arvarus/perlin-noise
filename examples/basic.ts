@@ -3,7 +3,7 @@
  * Run with: npm run example:basic
  */
 
-import { PerlinNoise } from '../src';
+import { PerlinNoise } from '@arvarus/trouz';
 
 // Same seed always produces the same noise pattern
 const noise1D = new PerlinNoise({ seed: 42, gridSize: [16] });

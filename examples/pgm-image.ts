@@ -6,7 +6,7 @@
 
 import { writeFileSync } from 'fs';
 import { join } from 'path';
-import { PerlinNoise } from '../src';
+import { PerlinNoise } from '@arvarus/trouz';
 
 const SIZE = 256;
 const GRID_CELLS = 8;
