@@ -16,8 +16,8 @@ export default defineConfig({
   title: 'trouz',
   description: 'Procedural noise toolkit in TypeScript: Perlin noise in 1 to 10 dimensions.',
   lang: 'en-US',
-  // Published on GitHub Pages at https://arvarus.github.io/trouz/.
-  base: '/trouz/',
+  // Published on GitHub Pages at https://trouz.arvarus.com/ (custom domain, served from the root).
+  base: '/',
   cleanUrls: true,
   lastUpdated: true,
   vite: {

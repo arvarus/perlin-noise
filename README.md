@@ -6,7 +6,7 @@
 
 > Formerly published as `@arvarus/perlin-noise`.
 
-**[Documentation and interactive playground](https://arvarus.github.io/trouz/)**
+**[Documentation and interactive playground](https://trouz.arvarus.com/)**
 
 - **N-dimensional**: generate noise in 1D, 2D, 3D... up to 10D
 - **Deterministic**: same seed, same noise pattern
